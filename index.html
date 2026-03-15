@@ -649,7 +649,7 @@ tr:hover td{background:#f8f9fa}
 <!-- ŞİFREMİ UNUTTUM MODAL -->
 <div class="overlay" id="modal-forgot">
   <div class="modal" style="max-width:400px">
-    <div class="modal-hdr">Şifre Hatırlatma<button class="modal-hdr-x" onclick="closeOverlay('modal-forgot');resetForgot()">×</button></div>
+    <div class="modal-hdr">Şifre Hatırlatma<button class="modal-hdr-x" id="x-modal-forgot">×</button></div>
     <div class="modal-body">
 
       <!-- Adım 1: Kullanıcı Adı -->
@@ -1144,7 +1144,7 @@ tr:hover td{background:#f8f9fa}
 <!-- LEAVE MODAL -->
 <div class="overlay" id="modal-leave">
   <div class="modal">
-    <div class="modal-hdr"><span id="modal-leave-title">İzin Ekle</span><button class="modal-hdr-x" onclick="closeOverlay('modal-leave')">×</button></div>
+    <div class="modal-hdr"><span id="modal-leave-title">İzin Ekle</span><button class="modal-hdr-x" id="x-modal-leave">×</button></div>
     <div class="modal-body">
       <div class="fr" id="leave-emp-row"><label>Operatör</label><select class="gs" id="leave-emp"></select></div>
       <div class="fr"><label>İzin Türü</label><select class="gs" id="leave-type"></select></div>
@@ -1168,7 +1168,7 @@ tr:hover td{background:#f8f9fa}
 <!-- MEMBER LEAVE EDIT MODAL (SA) -->
 <div class="overlay" id="modal-member-edit">
   <div class="modal" style="max-width:440px">
-    <div class="modal-hdr">Kullanılan İzin Düzenle<button class="modal-hdr-x" onclick="closeOverlay('modal-member-edit')">×</button></div>
+    <div class="modal-hdr">Kullanılan İzin Düzenle<button class="modal-hdr-x" id="x-modal-member-edit">×</button></div>
     <div class="modal-body">
       <input type="hidden" id="me-id">
       <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:12px" id="me-username-label"></div>
@@ -1202,7 +1202,7 @@ tr:hover td{background:#f8f9fa}
 <!-- USER EDIT MODAL -->
 <div class="overlay" id="modal-user-edit">
   <div class="modal">
-    <div class="modal-hdr">Kullanıcı Düzenle<button class="modal-hdr-x" onclick="closeOverlay('modal-user-edit')">×</button></div>
+    <div class="modal-hdr">Kullanıcı Düzenle<button class="modal-hdr-x" id="x-modal-user-edit">×</button></div>
     <div class="modal-body">
       <input type="hidden" id="ue-id">
       <div class="fr"><label>Rol</label>
@@ -1232,7 +1232,7 @@ tr:hover td{background:#f8f9fa}
 <!-- QUICK ADD TYPE MODAL -->
 <div class="overlay" id="modal-add-type">
   <div class="modal" style="max-width:380px">
-    <div class="modal-hdr">Yeni İzin Türü Ekle<button class="modal-hdr-x" onclick="closeOverlay('modal-add-type')">×</button></div>
+    <div class="modal-hdr">Yeni İzin Türü Ekle<button class="modal-hdr-x" id="x-modal-add-type">×</button></div>
     <div class="modal-body">
       <div class="fr"><label>Tür Adı</label><input class="gi" id="qat-name" placeholder="Doğum İzni, Refakat İzni..."></div>
       <div class="fr"><label>Renk</label>
@@ -1270,7 +1270,7 @@ tr:hover td{background:#f8f9fa}
 <!-- PROFİL DÜZENLEME MODAL -->
 <div class="overlay" id="modal-profile-edit">
   <div class="modal" style="max-width:380px">
-    <div class="modal-hdr">Ad Soyad Güncelle<button class="modal-hdr-x" onclick="closeOverlay('modal-profile-edit')">×</button></div>
+    <div class="modal-hdr">Ad Soyad Güncelle<button class="modal-hdr-x" id="x-modal-profile-edit">×</button></div>
     <div class="modal-body">
       <div class="fr">
         <label>Yeni Ad Soyad</label>
@@ -1295,7 +1295,7 @@ tr:hover td{background:#f8f9fa}
 <!-- HAK DEĞİŞİKLİĞİ ŞİFRE MODAL -->
 <div class="overlay" id="modal-ent-pw">
   <div class="modal" style="max-width:380px">
-    <div class="modal-hdr">Hak Değişikliği Onayı<button class="modal-hdr-x" onclick="cancelEntitlementChange()">×</button></div>
+    <div class="modal-hdr">Hak Değişikliği Onayı<button class="modal-hdr-x" id="x-modal-ent-pw">×</button></div>
     <div class="modal-body">
       <div style="font-size:13px;color:var(--text2);margin-bottom:12px" id="ent-info"></div>
       <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Değişikliği onaylamak için kendi şifrenizi girin:</div>
@@ -1406,15 +1406,28 @@ document.addEventListener('touchend',function(e){
     e.preventDefault();
   }
 },{passive:false});
-// X butonlarına touchend ekle — mobil için
-document.addEventListener('touchend',function(e){
-  const btn=e.target.closest('.modal-hdr-x');
-  if(btn&&btn.onclick){
-    btn.onclick();
-    e.preventDefault();
-    e.stopPropagation();
-  }
-},{passive:false});
+// X butonlarına doğrudan event listener — en güvenilir yöntem
+document.addEventListener('DOMContentLoaded',function(){
+  const xMap={
+    'x-modal-forgot':function(){closeOverlay('modal-forgot');resetForgot();},
+    'x-modal-leave':function(){closeOverlay('modal-leave');},
+    'x-modal-member-edit':function(){closeOverlay('modal-member-edit');},
+    'x-modal-user-edit':function(){closeOverlay('modal-user-edit');},
+    'x-modal-add-type':function(){closeOverlay('modal-add-type');},
+    'x-modal-profile-edit':function(){closeOverlay('modal-profile-edit');},
+    'x-modal-ent-pw':function(){cancelEntitlementChange();},
+  };
+  Object.keys(xMap).forEach(function(id){
+    const btn=document.getElementById(id);
+    if(!btn) return;
+    ['click','touchend'].forEach(function(ev){
+      btn.addEventListener(ev,function(e){
+        e.preventDefault();e.stopPropagation();
+        xMap[id]();
+      },{passive:false});
+    });
+  });
+});
 
 // Vardiya helpers
 const SHIFTS=['A','B','C','D'];
