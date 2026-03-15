@@ -1124,8 +1124,8 @@ tr:hover td{background:#f8f9fa}
         <div class="day-popup-meta" id="dp-meta"></div>
       </div>
     </div>
-    <button class="pop-ic" onclick="closeDayPopup()" style="flex-shrink:0">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <button class="pop-ic" id="x-day-popup" style="flex-shrink:0;min-width:48px;min-height:48px;font-size:24px;touch-action:manipulation">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
   </div>
   <div class="day-popup-body" id="dp-body"></div>
@@ -1408,12 +1408,13 @@ document.addEventListener('touchend',function(e){
 },{passive:false});
 // X butonları — document seviyesinde delegation, hem click hem touch
 function _handleXBtn(e){
-  const btn=e.target.closest('[id^="x-modal-"]');
+  const btn=e.target.closest('[id^="x-modal-"],[id="x-day-popup"]');
   if(!btn) return;
   e.preventDefault();
   e.stopPropagation();
   const id=btn.id;
-  if(id==='x-modal-forgot'){closeOverlay('modal-forgot');if(typeof resetForgot==='function')resetForgot();}
+  if(id==='x-day-popup'){if(typeof closeDayPopup==='function')closeDayPopup();}
+  else if(id==='x-modal-forgot'){closeOverlay('modal-forgot');if(typeof resetForgot==='function')resetForgot();}
   else if(id==='x-modal-leave'){closeOverlay('modal-leave');}
   else if(id==='x-modal-member-edit'){closeOverlay('modal-member-edit');}
   else if(id==='x-modal-user-edit'){closeOverlay('modal-user-edit');}
