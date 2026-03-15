@@ -267,6 +267,16 @@ body.dark-mode .ev-pill{filter:brightness(.85) saturate(1.1)}
   display:none;overflow:hidden;
 }
 .day-popup.open{display:block}
+/* Mobilde gün popup tam ekran — aşağıdan açılır */
+@media(max-width:768px){
+  .day-popup{
+    width:100%!important;left:0!important;right:0!important;
+    bottom:0!important;top:auto!important;
+    transform:none!important;
+    border-radius:16px 16px 0 0;
+    max-height:85vh;overflow-y:auto;
+  }
+}
 .day-popup-hdr{
   padding:12px 14px 10px;
   border-bottom:1px solid var(--border);
@@ -374,9 +384,17 @@ tr:hover td{background:#f8f9fa}
 .overlay.open{display:flex}
 .modal{background:#fff;border-radius:8px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;box-shadow:0 11px 15px rgba(0,0,0,.2),0 9px 46px rgba(0,0,0,.12)}
 .modal-hdr{padding:14px 20px 0;font-family:'Google Sans',sans-serif;font-size:17px;font-weight:400;display:flex;align-items:center;justify-content:space-between}
-.modal-hdr-x{width:44px;height:44px;border:none;background:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:24px;flex-shrink:0;padding:0;margin:-8px -10px 0 8px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.modal-hdr-x:hover{background:var(--hover)}
-.modal-hdr-x:active{background:var(--hover)}
+.modal-hdr-x{
+  min-width:52px;min-height:52px;
+  border:none;background:none;border-radius:50%;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--text2);font-size:28px;flex-shrink:0;
+  padding:0;margin:-10px -12px 0 4px;
+  -webkit-tap-highlight-color:rgba(0,0,0,.1);
+  touch-action:manipulation;
+  position:relative;z-index:10;
+}
+.modal-hdr-x:hover,.modal-hdr-x:active{background:var(--hover)}
 .modal-body{padding:14px 20px 8px}
 .modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:8px 14px 14px}
 
@@ -1367,14 +1385,36 @@ function workdays(s,e,opts){
 function initials(n){return n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
 function hashColor(s){const p=['#4285f4','#0f9d58','#db4437','#f4b400','#ab47bc','#00acc1','#ff7043','#5c6bc0'];let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))&0xffff;return p[h%p.length]}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400)}
-function closeOverlay(id){document.getElementById(id).classList.remove('open')}
-function openOverlay(id){document.getElementById(id).classList.add('open')}
-// Overlay dışına tıklayınca kapat — event delegation ile
-document.addEventListener('click',function(e){
+function closeOverlay(id){
+  const el=document.getElementById(id);
+  if(el) el.classList.remove('open');
+}
+function openOverlay(id){
+  const el=document.getElementById(id);
+  if(el) el.classList.add('open');
+}
+// Overlay dışına tıklayınca kapat — click + touchend ile
+function _overlayClose(e){
   if(e.target.classList&&e.target.classList.contains('overlay')&&e.target.classList.contains('open')){
     e.target.classList.remove('open');
   }
-});
+}
+document.addEventListener('click',_overlayClose);
+document.addEventListener('touchend',function(e){
+  if(e.target.classList&&e.target.classList.contains('overlay')&&e.target.classList.contains('open')){
+    e.target.classList.remove('open');
+    e.preventDefault();
+  }
+},{passive:false});
+// X butonlarına touchend ekle — mobil için
+document.addEventListener('touchend',function(e){
+  const btn=e.target.closest('.modal-hdr-x');
+  if(btn&&btn.onclick){
+    btn.onclick();
+    e.preventDefault();
+    e.stopPropagation();
+  }
+},{passive:false});
 
 // Vardiya helpers
 const SHIFTS=['A','B','C','D'];
