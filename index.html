@@ -551,7 +551,8 @@ tr:hover td{background:#f8f9fa}
   <div class="auth-box">
     <div class="auth-header">
       <h1>İzin Takvimi</h1>
-      <p>Operasyonel İzin Yönetim Sistemi</p>
+      <p style="font-weight:600;color:var(--text2);margin-bottom:2px">İzmir GTHOA</p>
+      <p style="font-size:12px;color:var(--text3)">Operasyonel İzin Yönetim Sistemi</p>
     </div>
     <div class="auth-tabs">
       <button class="auth-tab active" id="atab-login" onclick="authTab('login')">Giriş Yap</button>
@@ -702,6 +703,7 @@ tr:hover td{background:#f8f9fa}
     <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><rect y="5" width="24" height="2" rx="1"/><rect y="11" width="24" height="2" rx="1"/><rect y="17" width="24" height="2" rx="1"/></svg>
   </button>
   <div class="tb-logo">İzin<span>Takvim</span></div>
+  <div style="font-size:11px;color:var(--text3);padding-left:8px;border-left:1px solid var(--border);white-space:nowrap;display:none" id="tb-gthoa">İzmir GTHOA</div>
   <div class="tb-org" id="tb-org"></div>
   <div style="flex:1"></div>
   <div class="tb-nav">
@@ -725,6 +727,10 @@ tr:hover td{background:#f8f9fa}
           <div id="pm-shift" style="font-size:11px;color:var(--text3);margin-top:1px"></div>
         </div>
         <div style="padding:6px 0">
+          <button onclick="openChangePassword();toggleProfileMenu()" style="width:100%;padding:9px 16px;border:none;background:none;text-align:left;font-size:13px;color:var(--text);cursor:pointer;font-family:'Roboto',sans-serif;display:flex;align-items:center;gap:10px" onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background='none'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Şifre Değiştir
+          </button>
           <button onclick="openProfileEdit();toggleProfileMenu()" style="width:100%;padding:9px 16px;border:none;background:none;text-align:left;font-size:13px;color:var(--text);cursor:pointer;font-family:'Roboto',sans-serif;display:flex;align-items:center;gap:10px" onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background='none'">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Ad Soyad Güncelle
@@ -1268,6 +1274,70 @@ tr:hover td{background:#f8f9fa}
   </div>
 </div>
 
+<!-- ŞİFRE DEĞİŞTİR MODAL -->
+<div class="overlay" id="modal-change-pw">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-hdr">Şifre Değiştir<button class="modal-hdr-x" id="x-modal-change-pw">×</button></div>
+    <div class="modal-body">
+      <!-- Adım 1: Eski şifre -->
+      <div id="cpw-step1">
+        <div class="fr">
+          <label>Mevcut Şifreniz</label>
+          <div style="position:relative">
+            <input class="gi" id="cpw-old" type="password" placeholder="Mevcut şifrenizi girin" onkeydown="if(event.key==='Enter')cpwVerifyOld()">
+            <button type="button" onclick="togglePw('cpw-old',this)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;color:var(--text3)">👁</button>
+          </div>
+        </div>
+        <div class="auth-err" id="cpw-err1"></div>
+        <div style="text-align:right;margin-top:4px">
+          <button class="auth-link" onclick="cpwShowSecQ()">Şifremi hatırlamıyorum</button>
+        </div>
+      </div>
+      <!-- Adım 2: Güvenlik sorusu -->
+      <div id="cpw-step2" style="display:none">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Şifrenizi doğrulamak için güvenlik sorunuzu cevaplayın:</div>
+        <div style="background:#f1f5f9;border-radius:6px;padding:10px 12px;font-size:13px;font-weight:500;color:var(--text);margin-bottom:12px" id="cpw-q-text"></div>
+        <div class="fr">
+          <label>Cevabınız</label>
+          <input class="gi" id="cpw-ans" placeholder="Cevabınızı yazın" onkeydown="if(event.key==='Enter')cpwVerifySecQ()">
+        </div>
+        <div class="auth-err" id="cpw-err2"></div>
+      </div>
+      <!-- Adım 3: Yöneticiye başvur -->
+      <div id="cpw-step3" style="display:none">
+        <div style="text-align:center;padding:16px 0">
+          <div style="font-size:36px;margin-bottom:12px">🔒</div>
+          <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:8px">Kimlik doğrulanamadı</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6">Şifrenizi ve güvenlik sorunuzun cevabını hatırlamıyorsanız lütfen yöneticinize başvurun.</div>
+        </div>
+      </div>
+      <!-- Adım 4: Yeni şifre -->
+      <div id="cpw-step4" style="display:none">
+        <div style="font-size:12px;color:#137333;background:#e6f4ea;border-radius:6px;padding:8px 12px;margin-bottom:14px">✓ Kimlik doğrulandı</div>
+        <div class="fr">
+          <label>Yeni Şifre</label>
+          <div style="position:relative">
+            <input class="gi" id="cpw-new" type="password" placeholder="En az 4 karakter" onkeydown="if(event.key==='Enter')cpwSave()">
+            <button type="button" onclick="togglePw('cpw-new',this)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;color:var(--text3)">👁</button>
+          </div>
+        </div>
+        <div class="fr">
+          <label>Yeni Şifre (Tekrar)</label>
+          <div style="position:relative">
+            <input class="gi" id="cpw-new2" type="password" placeholder="Şifreyi tekrar girin" onkeydown="if(event.key==='Enter')cpwSave()">
+            <button type="button" onclick="togglePw('cpw-new2',this)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;color:var(--text3)">👁</button>
+          </div>
+        </div>
+        <div class="auth-err" id="cpw-err4"></div>
+      </div>
+    </div>
+    <div class="modal-foot" id="cpw-foot">
+      <button class="btn btn-flat" onclick="closeOverlay('modal-change-pw')">Kapat</button>
+      <button class="btn btn-pri" id="cpw-btn" onclick="cpwNext()">Devam</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- PROFİL DÜZENLEME MODAL -->
@@ -1424,6 +1494,7 @@ function _handleXBtn(e){
   else if(id==='x-modal-add-type'){closeOverlay('modal-add-type');}
   else if(id==='x-modal-profile-edit'){closeOverlay('modal-profile-edit');}
   else if(id==='x-modal-ent-pw'){if(typeof cancelEntitlementChange==='function')cancelEntitlementChange();}
+  else if(id==='x-modal-change-pw'){closeOverlay('modal-change-pw');}
 }
 document.addEventListener('click',_handleXBtn,true);
 document.addEventListener('touchend',_handleXBtn,{capture:true,passive:false});
@@ -1774,6 +1845,8 @@ function bootApp(){
     if(sh&&sh!=='SA') title=`${title} · ${sh} Vardiyası`;
   }
   document.getElementById('tb-org').textContent=title;
+  const gthoaEl=document.getElementById('tb-gthoa');
+  if(gthoaEl) gthoaEl.style.display='';
   document.getElementById('btn-create-top').style.display='';
 
   // Bugün butonuna tarihi yaz
@@ -1819,7 +1892,94 @@ function toggleSidebar(){
   else sb.style.display=sb.style.display==='none'?'block':'none';
 }
 
-// ══════════════════════════════════════ DARK MODE
+// ══════════════════════════════════════ ŞİFRE DEĞİŞTİR
+let _cpwStep=1;
+
+function openChangePassword(){
+  _cpwStep=1;
+  ['cpw-step1','cpw-step2','cpw-step3','cpw-step4'].forEach((id,i)=>{
+    document.getElementById(id).style.display=i===0?'':'none';
+  });
+  document.getElementById('cpw-old').value='';
+  document.getElementById('cpw-ans').value='';
+  if(document.getElementById('cpw-new')) document.getElementById('cpw-new').value='';
+  if(document.getElementById('cpw-new2')) document.getElementById('cpw-new2').value='';
+  ['cpw-err1','cpw-err2','cpw-err4'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='';});
+  document.getElementById('cpw-btn').style.display='';
+  document.getElementById('cpw-btn').textContent='Devam';
+  openOverlay('modal-change-pw');
+  setTimeout(()=>document.getElementById('cpw-old').focus(),100);
+}
+
+function cpwNext(){
+  if(_cpwStep===1) cpwVerifyOld();
+  else if(_cpwStep===2) cpwVerifySecQ();
+  else if(_cpwStep===4) cpwSave();
+}
+
+async function cpwVerifyOld(){
+  const pw=document.getElementById('cpw-old').value;
+  if(!pw){document.getElementById('cpw-err1').textContent='Şifre boş olamaz';return}
+  const ok=await verifyPassword(pw,CUR.password);
+  if(!ok){document.getElementById('cpw-err1').textContent='Şifre hatalı';return}
+  // Doğrulandı — yeni şifre adımına geç
+  _cpwStep=4;
+  document.getElementById('cpw-step1').style.display='none';
+  document.getElementById('cpw-step4').style.display='';
+  document.getElementById('cpw-btn').textContent='Kaydet';
+  setTimeout(()=>document.getElementById('cpw-new').focus(),100);
+}
+
+function cpwShowSecQ(){
+  if(!CUR.secQ||!CUR.secA){
+    _cpwStep=3;
+    document.getElementById('cpw-step1').style.display='none';
+    document.getElementById('cpw-step3').style.display='';
+    document.getElementById('cpw-btn').style.display='none';
+    return;
+  }
+  const SQ_LABELS={yemek:'En sevdiğiniz yemek nedir?',evcil:'Evcil hayvanınızın ismi nedir?',tc:'TC Kimlik numaranızın son 2 rakamı nedir?'};
+  document.getElementById('cpw-q-text').textContent=SQ_LABELS[CUR.secQ]||CUR.secQ;
+  _cpwStep=2;
+  document.getElementById('cpw-step1').style.display='none';
+  document.getElementById('cpw-step2').style.display='';
+  document.getElementById('cpw-btn').textContent='Doğrula';
+  setTimeout(()=>document.getElementById('cpw-ans').focus(),100);
+}
+
+function cpwVerifySecQ(){
+  const ans=document.getElementById('cpw-ans').value.trim().toLowerCase();
+  if(!ans){document.getElementById('cpw-err2').textContent='Cevap boş olamaz';return}
+  if(ans!==CUR.secA){
+    // Yanlış cevap — yöneticiye başvur
+    _cpwStep=3;
+    document.getElementById('cpw-step2').style.display='none';
+    document.getElementById('cpw-step3').style.display='';
+    document.getElementById('cpw-btn').style.display='none';
+    return;
+  }
+  // Doğrulandı
+  _cpwStep=4;
+  document.getElementById('cpw-step2').style.display='none';
+  document.getElementById('cpw-step4').style.display='';
+  document.getElementById('cpw-btn').textContent='Kaydet';
+  document.getElementById('cpw-btn').style.display='';
+  setTimeout(()=>document.getElementById('cpw-new').focus(),100);
+}
+
+async function cpwSave(){
+  const newPw=document.getElementById('cpw-new').value;
+  const newPw2=document.getElementById('cpw-new2').value;
+  const err=document.getElementById('cpw-err4');
+  if(!newPw||newPw.length<4){err.textContent='Şifre en az 4 karakter olmalıdır';return}
+  if(newPw!==newPw2){err.textContent='Şifreler eşleşmiyor';return}
+  const hashed=await hashPassword(newPw);
+  const users=S.users;
+  const u=users.find(u=>u.id===CUR.id);
+  if(u){u.password=hashed;S.users=users;CUR=u;window.CUR=u;}
+  closeOverlay('modal-change-pw');
+  toast('Şifre değiştirildi ✓');
+}
 function initDarkMode(){
   const saved=localStorage.getItem('iv5_darkmode');
   if(saved==='1') applyDarkMode(true,false);
