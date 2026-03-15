@@ -1568,6 +1568,14 @@ function togglePassVis(inputId,btnId){
       :`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
   }
 }
+// togglePw: inputId + buton elementi referansı ile çalışır
+function togglePw(inputId, btnEl){
+  const inp=document.getElementById(inputId);
+  if(!inp) return;
+  const isPass=inp.type==='password';
+  inp.type=isPass?'text':'password';
+  if(btnEl) btnEl.textContent=isPass?'🙈':'👁';
+}
 function autoUsername(){
   const name=document.getElementById('r-name').value.trim();
   const parts=name.toLowerCase().replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ı/g,'i').replace(/ö/g,'o').replace(/ç/g,'c').split(/\s+/);
