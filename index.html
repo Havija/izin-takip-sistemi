@@ -1423,7 +1423,7 @@ function _handleXBtn(e){
   else if(id==='x-modal-ent-pw'){if(typeof cancelEntitlementChange==='function')cancelEntitlementChange();}
 }
 document.addEventListener('click',_handleXBtn,true);
-document.addEventListener('touchstart',_handleXBtn,{capture:true,passive:false});
+document.addEventListener('touchend',_handleXBtn,{capture:true,passive:false});
 
 // Vardiya helpers
 const SHIFTS=['A','B','C','D'];
