@@ -1470,6 +1470,7 @@ function doLogout(){S.session=null;location.reload()}
 // ══════════════════════════════════════ BOOT
 function bootApp(){
   CUR=S.users.find(u=>u.id===S.session);
+  window.CUR = CUR;
   if(!CUR){S.session=null;return;}
   // Sadece aktif kullanıcılar girebilir
   if(CUR.status!=='active'){
@@ -3971,7 +3972,98 @@ function renderAllLogs(){
 }
 
 // ══════════════════════════════════════ INIT
+window.S = S;
+window.bootApp = bootApp;
+window.CUR = null;
+window.renderCalendar = renderCalendar;
+window.updateSidebarBadges = updateSidebarBadges;
 if(S.session)bootApp();
 </script>
-</body>
-</html>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA8Cu-BAuE5wDDpGeCFOFVj95egyRvvHQs",
+  authDomain: "izin-takip-sistemi.firebaseapp.com",
+  projectId: "izin-takip-sistemi",
+  storageBucket: "izin-takip-sistemi.firebasestorage.app",
+  messagingSenderId: "347770541694",
+  appId: "1:347770541694:web:e9cc5ad5d4790cd3cfaa2f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const DB_DOC = 'izintakip/data';
+
+// Firebase'den veriyi yükle ve localStorage'a yaz, sonra uygulamayı başlat
+async function loadFromFirebase(){
+  try {
+    const snap = await getDoc(doc(db, 'izintakip', 'data'));
+    if(snap.exists()){
+      const data = snap.data();
+      // Firebase'deki her anahtarı localStorage'a yaz
+      const keys = ['iv5_u','iv5_l','iv5_g','iv5_p','iv5_ct','iv5_sr','iv5_ent','iv5_dcr','iv5_dc','iv5_dn','iv5_log','iv5_adj'];
+      keys.forEach(k => {
+        if(data[k] !== undefined) localStorage.setItem(k, data[k]);
+      });
+    }
+  } catch(e) {
+    console.warn('Firebase yüklenemedi, localStorage kullanılıyor:', e);
+  }
+  // Uygulama başlat
+  if(localStorage.getItem('iv5_s')) window._bootApp && window._bootApp();
+}
+
+// localStorage'a her yazıldığında Firebase'e de kaydet
+async function saveToFirebase(){
+  try {
+    const keys = ['iv5_u','iv5_l','iv5_g','iv5_p','iv5_ct','iv5_sr','iv5_ent','iv5_dcr','iv5_dc','iv5_dn','iv5_log','iv5_adj'];
+    const data = {};
+    keys.forEach(k => {
+      const v = localStorage.getItem(k);
+      if(v !== null) data[k] = v;
+    });
+    await setDoc(doc(db, 'izintakip', 'data'), data);
+  } catch(e) {
+    console.warn('Firebase kaydetme hatası:', e);
+  }
+}
+
+// localStorage.setItem'ı override et — her değişiklikte Firebase'e kaydet
+const _origSetItem = localStorage.setItem.bind(localStorage);
+localStorage.setItem = function(key, value){
+  _origSetItem(key, value);
+  if(key.startsWith('iv5_') && key !== 'iv5_s'){
+    clearTimeout(window._fbSaveTimer);
+    window._fbSaveTimer = setTimeout(saveToFirebase, 800);
+  }
+};
+
+// Gerçek zamanlı senkronizasyon — başka cihazda değişiklik olunca güncelle
+onSnapshot(doc(db, 'izintakip', 'data'), (snap) => {
+  if(!snap.exists()) return;
+  const data = snap.data();
+  const keys = ['iv5_u','iv5_l','iv5_g','iv5_p','iv5_ct','iv5_sr','iv5_ent','iv5_dcr','iv5_dc','iv5_dn','iv5_log','iv5_adj'];
+  let changed = false;
+  keys.forEach(k => {
+    if(data[k] !== undefined && localStorage.getItem(k) !== data[k]){
+      _origSetItem(k, data[k]);
+      changed = true;
+    }
+  });
+  // Sayfa açıksa ve veri değiştiyse takvimi yenile
+  if(changed && window.CUR && window.renderCalendar){
+    window.renderCalendar();
+    if(window.updateSidebarBadges) window.updateSidebarBadges();
+  }
+});
+
+// bootApp'i global yap
+window._bootApp = () => { if(window.S && window.S.session && window.bootApp) window.bootApp(); };
+
+// Yükle ve başlat
+loadFromFirebase();
+</script>
