@@ -1406,28 +1406,23 @@ document.addEventListener('touchend',function(e){
     e.preventDefault();
   }
 },{passive:false});
-// X butonlarına doğrudan event listener — en güvenilir yöntem
-document.addEventListener('DOMContentLoaded',function(){
-  const xMap={
-    'x-modal-forgot':function(){closeOverlay('modal-forgot');resetForgot();},
-    'x-modal-leave':function(){closeOverlay('modal-leave');},
-    'x-modal-member-edit':function(){closeOverlay('modal-member-edit');},
-    'x-modal-user-edit':function(){closeOverlay('modal-user-edit');},
-    'x-modal-add-type':function(){closeOverlay('modal-add-type');},
-    'x-modal-profile-edit':function(){closeOverlay('modal-profile-edit');},
-    'x-modal-ent-pw':function(){cancelEntitlementChange();},
-  };
-  Object.keys(xMap).forEach(function(id){
-    const btn=document.getElementById(id);
-    if(!btn) return;
-    ['click','touchend'].forEach(function(ev){
-      btn.addEventListener(ev,function(e){
-        e.preventDefault();e.stopPropagation();
-        xMap[id]();
-      },{passive:false});
-    });
-  });
-});
+// X butonları — document seviyesinde delegation, hem click hem touch
+function _handleXBtn(e){
+  const btn=e.target.closest('[id^="x-modal-"]');
+  if(!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const id=btn.id;
+  if(id==='x-modal-forgot'){closeOverlay('modal-forgot');if(typeof resetForgot==='function')resetForgot();}
+  else if(id==='x-modal-leave'){closeOverlay('modal-leave');}
+  else if(id==='x-modal-member-edit'){closeOverlay('modal-member-edit');}
+  else if(id==='x-modal-user-edit'){closeOverlay('modal-user-edit');}
+  else if(id==='x-modal-add-type'){closeOverlay('modal-add-type');}
+  else if(id==='x-modal-profile-edit'){closeOverlay('modal-profile-edit');}
+  else if(id==='x-modal-ent-pw'){if(typeof cancelEntitlementChange==='function')cancelEntitlementChange();}
+}
+document.addEventListener('click',_handleXBtn,true);
+document.addEventListener('touchstart',_handleXBtn,{capture:true,passive:false});
 
 // Vardiya helpers
 const SHIFTS=['A','B','C','D'];
