@@ -733,8 +733,8 @@ tr:hover td{background:#f8f9fa}
         <div id="admin-pending-empty" style="text-align:center;padding:24px;color:var(--text3);display:none">Bekleyen kayıt talebi yok</div>
       </div>
 
-      <!-- Admin: Takvim Günleri -->
-      <div class="g-card" id="admin-daycolors-card">
+      <!-- Admin: Takvim Günleri — gizli, popup üzerinden yönetilir -->
+      <div class="g-card" id="admin-daycolors-card" style="display:none!important">
         <div class="g-card-hdr">Takvim Günleri — Renk & Başlık Döngüsü</div>
         <div style="padding:14px 18px">
           <div class="g2">
@@ -771,7 +771,7 @@ tr:hover td{background:#f8f9fa}
         <button class="sa-tab active" id="sa-tab-users" onclick="saTab('users')">Kullanıcı Yönetimi</button>
         <button class="sa-tab" id="sa-tab-pending" onclick="saTab('pending')">Onay Bekleyenler <span id="pending-badge" style="display:none;background:#d93025;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;margin-left:4px"></span></button>
         <button class="sa-tab" id="sa-tab-shifts" onclick="saTab('shifts')">Vardiya Talepleri</button>
-        <button class="sa-tab" id="sa-tab-daycolors" onclick="saTab('daycolors')">Takvim Günleri</button>
+        <button class="sa-tab" id="sa-tab-daycolors" onclick="saTab('daycolors')" style="display:none"></button>
         <button class="sa-tab" id="sa-tab-types" onclick="saTab('types')">İzin Türleri</button>
       </div>
       <!-- Users pane -->
