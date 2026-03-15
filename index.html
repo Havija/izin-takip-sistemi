@@ -371,7 +371,9 @@ tr:hover td{background:#f8f9fa}
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1100;align-items:center;justify-content:center;padding:16px}
 .overlay.open{display:flex}
 .modal{background:#fff;border-radius:8px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;box-shadow:0 11px 15px rgba(0,0,0,.2),0 9px 46px rgba(0,0,0,.12)}
-.modal-hdr{padding:18px 20px 0;font-family:'Google Sans',sans-serif;font-size:17px;font-weight:400}
+.modal-hdr{padding:14px 20px 0;font-family:'Google Sans',sans-serif;font-size:17px;font-weight:400;display:flex;align-items:center;justify-content:space-between}
+.modal-hdr-x{width:36px;height:36px;border:none;background:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:20px;flex-shrink:0;padding:0;margin:-4px -8px 0 8px}
+.modal-hdr-x:hover{background:var(--hover)}
 .modal-body{padding:14px 20px 8px}
 .modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:8px 14px 14px}
 
@@ -628,7 +630,7 @@ tr:hover td{background:#f8f9fa}
 <!-- ŞİFREMİ UNUTTUM MODAL -->
 <div class="overlay" id="modal-forgot">
   <div class="modal" style="max-width:400px">
-    <div class="modal-hdr">Şifre Hatırlatma</div>
+    <div class="modal-hdr">Şifre Hatırlatma<button class="modal-hdr-x" onclick="closeOverlay('modal-forgot');resetForgot()">×</button></div>
     <div class="modal-body">
 
       <!-- Adım 1: Kullanıcı Adı -->
@@ -1123,7 +1125,7 @@ tr:hover td{background:#f8f9fa}
 <!-- LEAVE MODAL -->
 <div class="overlay" id="modal-leave">
   <div class="modal">
-    <div class="modal-hdr" id="modal-leave-title">İzin Ekle</div>
+    <div class="modal-hdr"><span id="modal-leave-title">İzin Ekle</span><button class="modal-hdr-x" onclick="closeOverlay('modal-leave')">×</button></div>
     <div class="modal-body">
       <div class="fr" id="leave-emp-row"><label>Operatör</label><select class="gs" id="leave-emp"></select></div>
       <div class="fr"><label>İzin Türü</label><select class="gs" id="leave-type"></select></div>
@@ -1147,7 +1149,7 @@ tr:hover td{background:#f8f9fa}
 <!-- MEMBER LEAVE EDIT MODAL (SA) -->
 <div class="overlay" id="modal-member-edit">
   <div class="modal" style="max-width:440px">
-    <div class="modal-hdr">Kullanılan İzin Düzenle</div>
+    <div class="modal-hdr">Kullanılan İzin Düzenle<button class="modal-hdr-x" onclick="closeOverlay('modal-member-edit')">×</button></div>
     <div class="modal-body">
       <input type="hidden" id="me-id">
       <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:12px" id="me-username-label"></div>
@@ -1181,7 +1183,7 @@ tr:hover td{background:#f8f9fa}
 <!-- USER EDIT MODAL -->
 <div class="overlay" id="modal-user-edit">
   <div class="modal">
-    <div class="modal-hdr">Kullanıcı Düzenle</div>
+    <div class="modal-hdr">Kullanıcı Düzenle<button class="modal-hdr-x" onclick="closeOverlay('modal-user-edit')">×</button></div>
     <div class="modal-body">
       <input type="hidden" id="ue-id">
       <div class="fr"><label>Rol</label>
@@ -1211,7 +1213,7 @@ tr:hover td{background:#f8f9fa}
 <!-- QUICK ADD TYPE MODAL -->
 <div class="overlay" id="modal-add-type">
   <div class="modal" style="max-width:380px">
-    <div class="modal-hdr">Yeni İzin Türü Ekle</div>
+    <div class="modal-hdr">Yeni İzin Türü Ekle<button class="modal-hdr-x" onclick="closeOverlay('modal-add-type')">×</button></div>
     <div class="modal-body">
       <div class="fr"><label>Tür Adı</label><input class="gi" id="qat-name" placeholder="Doğum İzni, Refakat İzni..."></div>
       <div class="fr"><label>Renk</label>
@@ -1249,7 +1251,7 @@ tr:hover td{background:#f8f9fa}
 <!-- PROFİL DÜZENLEME MODAL -->
 <div class="overlay" id="modal-profile-edit">
   <div class="modal" style="max-width:380px">
-    <div class="modal-hdr">Ad Soyad Güncelle</div>
+    <div class="modal-hdr">Ad Soyad Güncelle<button class="modal-hdr-x" onclick="closeOverlay('modal-profile-edit')">×</button></div>
     <div class="modal-body">
       <div class="fr">
         <label>Yeni Ad Soyad</label>
@@ -1274,7 +1276,7 @@ tr:hover td{background:#f8f9fa}
 <!-- HAK DEĞİŞİKLİĞİ ŞİFRE MODAL -->
 <div class="overlay" id="modal-ent-pw">
   <div class="modal" style="max-width:380px">
-    <div class="modal-hdr">Hak Değişikliği Onayı</div>
+    <div class="modal-hdr">Hak Değişikliği Onayı<button class="modal-hdr-x" onclick="cancelEntitlementChange()">×</button></div>
     <div class="modal-body">
       <div style="font-size:13px;color:var(--text2);margin-bottom:12px" id="ent-info"></div>
       <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Değişikliği onaylamak için kendi şifrenizi girin:</div>
@@ -1366,7 +1368,12 @@ function hashColor(s){const p=['#4285f4','#0f9d58','#db4437','#f4b400','#ab47bc'
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400)}
 function closeOverlay(id){document.getElementById(id).classList.remove('open')}
 function openOverlay(id){document.getElementById(id).classList.add('open')}
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
+// Overlay dışına tıklayınca kapat — event delegation ile
+document.addEventListener('click',function(e){
+  if(e.target.classList&&e.target.classList.contains('overlay')&&e.target.classList.contains('open')){
+    e.target.classList.remove('open');
+  }
+});
 
 // Vardiya helpers
 const SHIFTS=['A','B','C','D'];
@@ -2277,19 +2284,12 @@ function renderCalendar(){
 
       let dnStyle='';
       if((isPaz||holiday)&&!isOth) dnStyle='color:#d93025;font-weight:700;';
-      else if(dayColor&&dayColor.bg&&!isOth)
-        dnStyle+=`background:${dayColor.bg};color:${dayColor.fg||'#fff'};`;
+      else if(!dayColor) dnStyle=''; // normal gün — CSS'teki var(--text2) kullanılır
+      // Renk atanmış günlerde cal-dn background kaldırıldı, sadece hücre arka planı renklenir
 
       let inner='';
 
-      // Renk şeritleri — her kural için renkli çizgi (üst kenarda)
-      if(matchedRules.length&&!isOth){
-        inner+=`<div style="display:flex;height:5px;border-radius:2px;overflow:hidden;margin-bottom:3px;gap:1px">`;
-        matchedRules.forEach(r=>{
-          inner+=`<div style="flex:1;background:${r.color.fg};border-radius:2px;opacity:0.85"></div>`;
-        });
-        inner+=`</div>`;
-      }
+      // Renk şeridi kaldırıldı — hücre arka planı zaten rengi gösteriyor
 
       if(holiday&&!isOth){
         inner+=`<div class="cal-holiday" title="${holiday}">${holiday}</div>`;
@@ -2352,7 +2352,7 @@ function renderCalendar(){
       const dnRowHtml=ruleNote
         ?'<div style="display:flex;align-items:center;gap:3px;margin-bottom:2px">'
           +'<div class="cal-dn" style="'+dnStyle+'">'+cell.label+'</div>'
-          +'<div style="font-size:9px;font-weight:600;color:'+(dayColor&&dayColor.fg&&dayColor.fg!=='transparent'?dayColor.fg:'var(--text2)')+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1" title="'+escHtml(ruleNote)+'">'+escHtml(ruleNote)+'</div>'
+          +'<div style="font-size:9px;font-weight:500;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1" title="'+escHtml(ruleNote)+'">'+escHtml(ruleNote)+'</div>'
           +'</div>'
         :'<div class="cal-dn" style="'+dnStyle+'">'+cell.label+'</div>';
 
