@@ -237,6 +237,27 @@ tr:hover td{background:#f8f9fa}
 #members-table .badge{padding:1px 5px;font-size:10px}
 #page-members{padding:10px 12px}
 
+/* ══ MOBİL ÜYELER POPUP ══ */
+#member-detail-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:1200;align-items:flex-end;justify-content:center;
+}
+#member-detail-overlay.open{display:flex}
+#member-detail-popup{
+  background:#fff;border-radius:16px 16px 0 0;
+  width:100%;max-height:80vh;overflow-y:auto;
+  padding:0 0 24px;
+}
+.mdp-handle{width:40px;height:4px;background:#dadce0;border-radius:2px;margin:12px auto 0}
+.mdp-hdr{padding:14px 18px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.mdp-title{font-family:'Google Sans',sans-serif;font-size:16px;font-weight:500}
+.mdp-close{width:32px;height:32px;border:none;background:none;border-radius:50%;cursor:pointer;font-size:18px;color:var(--text2);display:flex;align-items:center;justify-content:center}
+.mdp-close:hover{background:var(--hover)}
+.mdp-row{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--border)}
+.mdp-row:last-child{border-bottom:none}
+.mdp-label{font-size:13px;color:var(--text2)}
+.mdp-val{font-size:14px;font-weight:600;color:var(--text)}
+
 /* ══ BADGES ══ */
 .badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:500;font-family:'Google Sans',sans-serif}
 .b-bek{background:#fef7e0;color:#b06000}
@@ -378,6 +399,10 @@ tr:hover td{background:#f8f9fa}
   th,td{padding:8px 10px}
   .popover{width:290px}
   #sa-users-table{min-width:700px}
+  /* Mobilde üyeler tablosu sadeleşir — detay popup'ta */
+  #members-table .mob-hide{display:none}
+  #members-table td{cursor:pointer}
+  #members-table tr:hover td{background:#f1f3f4}
   .modal{max-width:100%;border-radius:12px 12px 0 0;position:fixed;bottom:0;left:0;right:0;max-height:90vh}
   .overlay{align-items:flex-end;padding:0}
 }
@@ -1077,6 +1102,21 @@ tr:hover td{background:#f8f9fa}
       <button class="btn btn-flat" onclick="closeOverlay('modal-add-type')">İptal</button>
       <button class="btn btn-pri" onclick="quickAddType()">Ekle</button>
     </div>
+  </div>
+</div>
+
+<!-- MOBİL ÜYE DETAY POPUP -->
+<div id="member-detail-overlay" onclick="closeMemberDetail(event)">
+  <div id="member-detail-popup">
+    <div class="mdp-handle"></div>
+    <div class="mdp-hdr">
+      <div>
+        <div class="mdp-title" id="mdp-name"></div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px" id="mdp-sub"></div>
+      </div>
+      <button class="mdp-close" onclick="closeMemberDetail()">×</button>
+    </div>
+    <div id="mdp-body"></div>
   </div>
 </div>
 
@@ -3019,33 +3059,31 @@ function renderMembers(){
     });
   }
 
-  const th=(col,label,extra='')=>`<th style="cursor:pointer;user-select:none${extra}" onclick="thSort(memberSort,'${col}',renderMembers)">${label}${sortArrow(memberSort,col)}</th>`;
+  const th=(col,label,extra='',mobHide=false)=>`<th class="${mobHide?'mob-hide':''}" style="cursor:pointer;user-select:none${extra}" onclick="thSort(memberSort,'${col}',renderMembers)">${label}${sortArrow(memberSort,col)}</th>`;
 
   // Sütun genişlikleri — table-layout:fixed ile tam sayfaya sığar
-  const typeCols=types.map(()=>'<col style="width:52px">').join('');
+  const typeCols=types.map(()=>'<col style="width:52px" class="mob-hide">').join('');
   const actionCols=(showDelCol?'<col style="width:44px">':'')+(showEditCol?'<col style="width:60px">':'');
   const colgroup=`<colgroup>
     <col style="width:130px">
-    <col style="width:62px">
     <col style="width:52px">
     <col style="width:52px">
     <col style="width:52px">
     <col style="width:52px">
-    <col style="width:52px">
+    <col style="width:52px" class="mob-hide">
     ${typeCols}${actionCols}
   </colgroup>`;
 
   thead.innerHTML=colgroup+`<tr>
     <th style="cursor:pointer;user-select:none;text-align:left;padding-left:8px" onclick="thSort(memberSort,'name',renderMembers)">Ad Soyad${sortArrow(memberSort,'name')}</th>
-    <th style="cursor:pointer;user-select:none" onclick="thSort(memberSort,'rol',renderMembers)">Rol${sortArrow(memberSort,'rol')}</th>
     ${th('yillik_hak','Hak.<br>Yıllık')}
     ${th('yillik_kalan','Kalan<br>Yıllık',';color:#137333')}
     ${th('mazeret_hak','Hak.<br>Mazeret')}
     ${th('mazeret_kalan','Kalan<br>Mazeret',';color:#137333')}
-    ${th('bekleyen','Bek-<br>leyen',';color:#b45800')}
-    ${types.map(t=>th('type_'+t.id,t.label)).join('')}
-    ${showDelCol?'<th></th>':''}
-    ${showEditCol?'<th></th>':''}
+    ${th('bekleyen','Bek-<br>leyen',';color:#b45800',true)}
+    ${types.map(t=>th('type_'+t.id,t.label,'',true)).join('')}
+    ${showDelCol?'<th class="mob-hide"></th>':''}
+    ${showEditCol?'<th class="mob-hide"></th>':''}
   </tr>`;
 
   tbody.innerHTML=members.map(u=>{
@@ -3083,7 +3121,7 @@ function renderMembers(){
 
     const isOwnRow=(u.id===CUR.id);
 
-    return`<tr>
+    return`<tr onclick="showMemberDetail('${u.id}')" style="cursor:pointer">
       <td>
         <div style="display:flex;align-items:center;gap:8px">
           <div class="av" style="background:${hashColor(u.id)}22;color:${hashColor(u.id)}">${initials(u.name)}</div>
@@ -3093,30 +3131,97 @@ function renderMembers(){
           </div>
         </div>
       </td>
-      <td><span class="badge ${u.role==='admin'?'b-ona':'b-bek'}">${roleName(u.role)}</span></td>
       ${hakCell('yillik',yillikHak,yillikKull,isOwnRow)}
       ${kalanCell(yillikKalan)}
       ${hakCell('mazeret',mazeretHak,mazeretKull,isOwnRow)}
       ${kalanCell(mazeretKalan)}
-      <td style="text-align:center">
+      <td class="mob-hide" style="text-align:center">
         <span style="font-size:13px;font-weight:600;color:${bekleyen>0?'#b45800':'var(--text3)'}">${bekleyen}</span>
         ${bekleyen>0?`<div style="font-size:10px;color:var(--text3)">gün</div>`:''}
       </td>
       ${types.map(t=>{
         const kull=approvedDays(u.id,t.id,year);
-        return`<td style="text-align:center">
+        return`<td class="mob-hide" style="text-align:center">
           <span style="font-size:13px;font-weight:600;color:${kull>0?'#137333':'var(--text3)'}">${kull||'—'}</span>
           ${kull>0?`<div style="font-size:10px;color:var(--text3)">gün</div>`:''}
         </td>`;
       }).join('')}
       ${showDelCol?(function(){
-        if(canDeleteMember(u)) return '<td style="text-align:center"><button class="btn btn-red btn-sm" style="padding:3px 10px" onclick="deleteMember(\''+u.id+'\')">Sil</button></td>';
+        if(canDeleteMember(u)) return '<td class="mob-hide" style="text-align:center"><button class="btn btn-red btn-sm" style="padding:3px 10px" onclick="event.stopPropagation();deleteMember(\''+u.id+'\')">Sil</button></td>';
         const lbl=u.id===superSAId?'Süper Yetkili':u.id===CUR.id?'Sen':'';
-        return '<td style="text-align:center;font-size:10px;color:var(--text3)">'+lbl+'</td>';
+        return '<td class="mob-hide" style="text-align:center;font-size:10px;color:var(--text3)">'+lbl+'</td>';
       })():''}
-      ${showEditCol?'<td style="text-align:center">'+(isOwnRow?'':('<button class="btn btn-out2 btn-sm" style="padding:3px 10px" onclick="openMemberEdit(\''+u.id+'\')">Düzenle</button>'))+'</td>':''}
+      ${showEditCol?'<td class="mob-hide" style="text-align:center">'+(isOwnRow?'':('<button class="btn btn-out2 btn-sm" style="padding:3px 10px" onclick="event.stopPropagation();openMemberEdit(\''+u.id+'\')">Düzenle</button>'))+'</td>':''}
     </tr>`;
   }).join('');
+}
+
+function showMemberDetail(userId){
+  const u=S.users.find(u=>u.id===userId);
+  if(!u) return;
+  const year=new Date().getFullYear();
+  const types=allLeaveTypes();
+  const yillikHak=getEntitlement(userId,'yillik');
+  const mazeretHak=getEntitlement(userId,'mazeret');
+  const yillikKull=approvedDays(userId,'yillik',year);
+  const mazeretKull=approvedDays(userId,'mazeret',year);
+  const yillikKalan=yillikHak-yillikKull;
+  const mazeretKalan=mazeretHak-mazeretKull;
+  const bekleyen=pendingDays(userId);
+
+  document.getElementById('mdp-name').textContent=u.name;
+  document.getElementById('mdp-sub').innerHTML=`<span class="badge ${u.role==='admin'?'b-ona':'b-bek'}">${roleName(u.role)}</span> &nbsp; ${shiftBadge(getUserShift(u))}`;
+
+  const kalanColor=(k)=>k<0?'#d93025':k===0?'#b45800':'#137333';
+  const row=(label,val,color='var(--text)')=>
+    `<div class="mdp-row"><span class="mdp-label">${label}</span><span class="mdp-val" style="color:${color}">${val}</span></div>`;
+
+  let html='';
+  html+=`<div style="padding:8px 18px 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3)">Yıllık İzin</div>`;
+  html+=row('Hak Edilen',yillikHak+' gün');
+  html+=row('Kullanılan',yillikKull+' gün');
+  html+=row('Kalan',(yillikKalan>=0?'+':'')+yillikKalan+' gün',kalanColor(yillikKalan));
+
+  html+=`<div style="padding:8px 18px 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3)">Mazeret İzni</div>`;
+  html+=row('Hak Edilen',mazeretHak+' gün');
+  html+=row('Kullanılan',mazeretKull+' gün');
+  html+=row('Kalan',(mazeretKalan>=0?'+':'')+mazeretKalan+' gün',kalanColor(mazeretKalan));
+
+  if(bekleyen>0){
+    html+=`<div style="padding:8px 18px 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#b45800">Bekleyen</div>`;
+    html+=row('Onay Bekleyen',bekleyen+' gün','#b45800');
+  }
+
+  const otherTypes=types.filter(t=>t.id!=='yillik'&&t.id!=='mazeret');
+  const otherUsed=otherTypes.filter(t=>approvedDays(userId,t.id,year)>0);
+  if(otherUsed.length){
+    html+=`<div style="padding:8px 18px 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3)">Diğer İzinler</div>`;
+    otherUsed.forEach(t=>{
+      const kull=approvedDays(userId,t.id,year);
+      html+=row(t.label,kull+' gün','#137333');
+    });
+  }
+
+  // Masaüstünde sil/düzenle butonları da popup'ta göster
+  const canEdit=CUR.role==='sa'||CUR.role==='admin';
+  const superSA=S.users.filter(u=>u.role==='sa').sort((a,b)=>a.createdAt.localeCompare(b.createdAt))[0];
+  const superSAId=superSA?superSA.id:null;
+  const canDel=canEdit&&userId!==CUR.id&&userId!==superSAId&&u.role!=='sa';
+  const canEditBtn=CUR.role==='sa'&&userId!==CUR.id;
+  if(canDel||canEditBtn){
+    html+=`<div style="padding:12px 18px;display:flex;gap:8px;border-top:1px solid var(--border);margin-top:4px">`;
+    if(canEditBtn) html+=`<button class="btn btn-out2 btn-sm" onclick="closeMemberDetail();openMemberEdit('${userId}')">Düzenle</button>`;
+    if(canDel) html+=`<button class="btn btn-red btn-sm" onclick="closeMemberDetail();deleteMember('${userId}')">Sil</button>`;
+    html+=`</div>`;
+  }
+
+  document.getElementById('mdp-body').innerHTML=html;
+  document.getElementById('member-detail-overlay').classList.add('open');
+}
+
+function closeMemberDetail(e){
+  if(e&&e.target!==document.getElementById('member-detail-overlay')) return;
+  document.getElementById('member-detail-overlay').classList.remove('open');
 }
 
 function deleteMember(userId){
