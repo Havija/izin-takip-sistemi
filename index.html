@@ -3193,12 +3193,11 @@ function showMemberDetail(userId){
   }
 
   const otherTypes=types.filter(t=>t.id!=='yillik'&&t.id!=='mazeret');
-  const otherUsed=otherTypes.filter(t=>approvedDays(userId,t.id,year)>0);
-  if(otherUsed.length){
+  if(otherTypes.length){
     html+=`<div style="padding:8px 18px 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3)">Diğer İzinler</div>`;
-    otherUsed.forEach(t=>{
+    otherTypes.forEach(t=>{
       const kull=approvedDays(userId,t.id,year);
-      html+=row(t.label,kull+' gün','#137333');
+      html+=row(t.label, kull>0?kull+' gün':'—', kull>0?'#137333':'var(--text3)');
     });
   }
 
