@@ -520,9 +520,12 @@ tr:hover td{background:#f8f9fa}
         <div class="auth-err" id="f-err3"></div>
         <!-- Adım 4: Şifre sonucu (aynı adımda, cevap doğruysa) -->
         <div id="fs4" style="display:none;margin-top:14px">
-          <div style="background:#e6f4ea;border-radius:6px;padding:14px 16px;text-align:center">
-            <div style="font-size:11px;color:#137333;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Şifreniz</div>
-            <div style="font-size:26px;font-weight:700;color:#137333;letter-spacing:4px;font-family:monospace" id="f-result"></div>
+          <div class="fr">
+            <label>Yeni Şifreniz</label>
+            <input class="gi" id="f-newpw" type="password" placeholder="En az 4 karakter">
+          </div>
+          <div style="background:#e6f4ea;border-radius:6px;padding:10px 14px;margin-top:8px;display:none" id="f-success-box">
+            <div style="font-size:13px;font-weight:600;color:#137333;text-align:center" id="f-result"></div>
           </div>
         </div>
       </div>
@@ -1287,6 +1290,24 @@ function setUserPerm(userId,perm,val){const ps=S.perms;if(!ps[userId])ps[userId]
 const SQ_LABELS={yemek:'En sevdiğiniz yemek nedir?',evcil:'Evcil hayvanınızın ismi nedir?',tc:'TC Kimlik numaranızın son 2 rakamı nedir?'};
 
 // ══════════════════════════════════════ AUTH
+// SHA-256 hash — şifreler düz metin yerine hash olarak saklanır
+async function hashPassword(password){
+  const msgBuffer=new TextEncoder().encode(password);
+  const hashBuffer=await crypto.subtle.digest('SHA-256',msgBuffer);
+  const hashArray=Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// Şifre doğrulama — hem hash hem düz metin destekler (geçiş dönemi)
+async function verifyPassword(inputPassword, storedPassword){
+  // Eğer saklanan şifre 64 karakter hex ise hash'tir
+  if(storedPassword&&storedPassword.length===64&&/^[0-9a-f]+$/.test(storedPassword)){
+    const hashed=await hashPassword(inputPassword);
+    return hashed===storedPassword;
+  }
+  // Eski düz metin şifre — eşleşirse otomatik hash'e çevir
+  return inputPassword===storedPassword;
+}
 function authTab(tab){
   document.getElementById('pane-login').style.display=tab==='login'?'':'none';
   document.getElementById('pane-reg').style.display=tab==='register'?'':'none';
@@ -1328,16 +1349,25 @@ function autoUsername(){
   const parts=name.toLowerCase().replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ı/g,'i').replace(/ö/g,'o').replace(/ç/g,'c').split(/\s+/);
   if(parts.length>=2)document.getElementById('r-user').value=parts[0]+'.'+parts.slice(1).join('');
 }
-function doLogin(){
+async function doLogin(){
   const user=document.getElementById('l-user').value.trim(),pass=document.getElementById('l-pass').value;
   const err=document.getElementById('l-err');
-  const found=S.users.find(u=>u.username===user&&u.password===pass);
+  const found=S.users.find(u=>u.username===user);
   if(!found){err.textContent='Kullanıcı adı veya şifre hatalı.';return}
+  const ok=await verifyPassword(pass,found.password);
+  if(!ok){err.textContent='Kullanıcı adı veya şifre hatalı.';return}
   if(found.status==='pending'){err.textContent='Hesabınız henüz onaylanmadı. Operasyon Amiri onayı bekleniyor.';return}
   if(found.status==='rejected'||found.status!=='active'){err.textContent='Hesabınız onaylanmadı veya erişiminiz kaldırıldı.';return}
+  // Düz metin şifreyi otomatik hash'e çevir
+  if(!found.password||found.password.length!==64||!/^[0-9a-f]+$/.test(found.password)){
+    const hashed=await hashPassword(pass);
+    const users=S.users;
+    const u=users.find(u=>u.id===found.id);
+    if(u){u.password=hashed;S.users=users;}
+  }
   err.textContent='';S.session=found.id;bootApp();
 }
-function doRegister(){
+async function doRegister(){
   const name=document.getElementById('r-name').value.trim();
   const username=document.getElementById('r-user').value.trim();
   const role=document.getElementById('r-role').value;
@@ -1350,11 +1380,12 @@ function doRegister(){
   if(!password||password.length<4){err.textContent='Şifre en az 4 karakter olmalıdır.';return}
   if(!sq||!sa){err.textContent='Şifre hatırlatma sorusunu ve cevabını doldurun.';return}
   if(S.users.find(u=>u.username===username)){err.textContent='Bu kullanıcı adı zaten alınmış.';return}
+  const hashedPassword=await hashPassword(password);
   const users=S.users;
   const isSA=users.length===0;
   const finalRole=isSA?'sa':role;
   const u={
-    id:uid(),name,username,password,secQ:sq,secA:sa,
+    id:uid(),name,username,password:hashedPassword,secQ:sq,secA:sa,
     role:finalRole,shift:finalRole==='sa'?'SA':shift,
     groupAdminId:null,
     status:isSA?'active':'pending',
@@ -1451,7 +1482,6 @@ function forgotNext(){
     setTimeout(()=>document.getElementById('f-ans').focus(),100);
 
   } else if(forgotStep===3){
-    // Cevap kontrol
     const ans=document.getElementById('f-ans').value.trim().toLowerCase();
     if(!ans){document.getElementById('f-err3').textContent='Cevabı girin.';return}
     const u=_forgotUser;
@@ -1459,10 +1489,22 @@ function forgotNext(){
       document.getElementById('f-err3').textContent='Soru veya cevap hatalı. Tekrar deneyin.';return
     }
     document.getElementById('f-err3').textContent='';
-    document.getElementById('f-result').textContent=u.password;
+    // Hash'li şifre gösterilemez — yeni şifre input'u göster
     document.getElementById('fs4').style.display='';
-    document.getElementById('f-btn').style.display='none';
+    document.getElementById('f-btn').textContent='Şifreyi Güncelle';
     forgotStep=4;
+  } else if(forgotStep===4){
+    const newPw=document.getElementById('f-newpw').value;
+    if(!newPw||newPw.length<4){document.getElementById('f-err3').textContent='Şifre en az 4 karakter olmalıdır.';return}
+    hashPassword(newPw).then(hashed=>{
+      const users=S.users;
+      const u=users.find(u=>u.id===_forgotUser.id);
+      if(u){u.password=hashed;S.users=users;}
+      document.getElementById('f-btn').style.display='none';
+      document.getElementById('f-result').textContent='Şifreniz güncellendi!';
+      document.getElementById('f-result').style.fontSize='16px';
+      toast('Şifre güncellendi ✓');
+    });
   }
 }
 function doLogout(){S.session=null;location.reload()}
@@ -1575,14 +1617,15 @@ function openProfileEdit(){
   setTimeout(()=>document.getElementById('pe-name').focus(),100);
 }
 
-function saveProfileName(){
+async function saveProfileName(){
   const newName=document.getElementById('pe-name').value.trim();
   const pw=document.getElementById('pe-pw').value;
   const err=document.getElementById('pe-err');
   if(!newName){err.textContent='Ad Soyad boş olamaz';return}
   if(newName.length<2){err.textContent='Ad Soyad en az 2 karakter olmalıdır';return}
   if(!pw){err.textContent='Şifre boş olamaz';return}
-  if(pw!==CUR.password){err.textContent='Şifre hatalı';return}
+  const ok=await verifyPassword(pw,CUR.password);
+  if(!ok){err.textContent='Şifre hatalı';return}
   const users=S.users;
   const u=users.find(u=>u.id===CUR.id);
   if(!u){err.textContent='Kullanıcı bulunamadı';return}
@@ -2875,10 +2918,11 @@ function confirmEntitlementChange(userId,key,newVal,inputEl){
   document.getElementById('ent-info').textContent=`${u?u.name:'?'} — ${keyLabel}: ${oldVal} → ${newVal} gün`;
   openOverlay('modal-ent-pw');
 }
-function saveEntitlementWithPw(){
+async function saveEntitlementWithPw(){
   const pw=document.getElementById('ent-pw').value;
   if(!pw){document.getElementById('ent-err').textContent='Şifre boş olamaz';return}
-  if(pw!==CUR.password){document.getElementById('ent-err').textContent='Şifre hatalı';return}
+  const ok=await verifyPassword(pw,CUR.password);
+  if(!ok){document.getElementById('ent-err').textContent='Şifre hatalı';return}
   if(!_pendingEnt){closeOverlay('modal-ent-pw');return}
   const {userId,key,newVal,oldVal}=_pendingEnt;
   setEntitlement(userId,key,newVal);
@@ -3160,10 +3204,11 @@ function openMemberEdit(userId){
   openOverlay('modal-member-edit');
 }
 
-function verifyMemberEditPw(){
+async function verifyMemberEditPw(){
   const pw=document.getElementById('me-pw').value;
   if(!pw){document.getElementById('me-auth-err').textContent='Şifre boş olamaz';return}
-  if(pw!==CUR.password){document.getElementById('me-auth-err').textContent='Şifre hatalı';return}
+  const ok=await verifyPassword(pw,CUR.password);
+  if(!ok){document.getElementById('me-auth-err').textContent='Şifre hatalı';return}
   document.getElementById('me-auth-section').style.display='none';
   document.getElementById('me-edit-section').style.display='';
   document.getElementById('me-save-btn').style.display='';
@@ -3633,14 +3678,14 @@ function openUserEdit(uid){
   onUeRole();openOverlay('modal-user-edit');
 }
 function onUeRole(){}
-function saveUserEdit(){
+async function saveUserEdit(){
   const uid=document.getElementById('ue-id').value;
   const role=document.getElementById('ue-role').value;
   const shift=document.getElementById('ue-shift').value;
   const newPass=document.getElementById('ue-pass').value.trim();
   const users=S.users;const u=users.find(u=>u.id===uid);if(!u)return;
   u.role=role;u.shift=shift;
-  if(newPass)u.password=newPass;
+  if(newPass) u.password=await hashPassword(newPass);
   if(role==='admin'||role==='sa')getOrCreateGroup(uid);
   S.users=users;closeOverlay('modal-user-edit');renderSaUsersTable();
   toast('Kullanıcı güncellendi ✓'+(newPass?' (şifre sıfırlandı)':''));
