@@ -1120,7 +1120,10 @@ tr:hover td{background:#f8f9fa}
         <circle cx="15" cy="19" r="1.5" fill="currentColor" stroke="none"/>
       </svg>
       <div>
-        <div class="day-popup-date" id="dp-date"></div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div class="day-popup-date" id="dp-date"></div>
+          <div id="dp-color-badge" style="display:none"></div>
+        </div>
         <div class="day-popup-meta" id="dp-meta"></div>
       </div>
     </div>
@@ -2508,6 +2511,25 @@ function showDayPopup(dateStr, ev){
   document.getElementById('dp-date').textContent=`${dayName}, ${dateLabel}`;
   document.getElementById('dp-date').style.color=isSun?'#d93025':'var(--text)';
 
+  // Renk atanmışsa tarih yanında badge göster
+  const activeRules=getShiftRules(activeShiftKey()).filter(r=>ruleMatchesDate(r,dateStr));
+  const hdrBadgeEl=document.getElementById('dp-color-badge');
+  if(hdrBadgeEl){
+    if(activeRules.length){
+      const r=activeRules[0];
+      const hasNote=r.note&&r.note.trim();
+      const bg=r.color.bg||'transparent';
+      const fg=r.color.fg==='transparent'?'var(--text2)':r.color.fg;
+      hdrBadgeEl.innerHTML=`<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:10px;background:${bg};font-size:11px;font-weight:600;color:${fg};max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">`
+        +(hasNote?escHtml(r.note.slice(0,20)):'🎨')
+        +'</span>';
+      hdrBadgeEl.style.display='';
+    } else {
+      hdrBadgeEl.innerHTML='';
+      hdrBadgeEl.style.display='none';
+    }
+  }
+
   const metaParts=[];
   const wdate=new Date(dateStr+'T00:00:00');
   const jan1=new Date(wdate.getFullYear(),0,1);
@@ -2858,18 +2880,31 @@ function dpSelectColor(idx, el){
 
 function dpSaveColor(dateStr){
   const period=+document.getElementById('dp-period').value;
-  if(!_dpSelectedColor){toast('Lütfen bir renk seçin');return}
   const noteEl=document.getElementById('dp-note');
   const note=noteEl?noteEl.value.trim():'';
 
   const shift=activeShiftKey();
   const rules=getShiftRules(shift);
   const existIdx=rules.findIndex(r=>r.startDate===dateStr&&r.period===period);
+
+  // Renk seçilmemişse: mevcut kural varsa rengini koru, yoksa hata ver
+  let colorToSave=_dpSelectedColor;
+  if(!colorToSave){
+    if(existIdx>=0){
+      colorToSave=rules[existIdx].color; // mevcut rengi koru
+    } else {
+      toast('Lütfen bir renk seçin');return;
+    }
+  }
+
+  // Not boş bırakılırsa mevcut notu koru
+  const noteToSave=note||( existIdx>=0?rules[existIdx].note||'':'' );
+
   if(existIdx>=0){
-    rules[existIdx].color={..._dpSelectedColor};
-    rules[existIdx].note=note;
+    rules[existIdx].color={...colorToSave};
+    rules[existIdx].note=noteToSave;
   } else {
-    rules.push({id:uid(), startDate:dateStr, period, color:{..._dpSelectedColor}, note});
+    rules.push({id:uid(), startDate:dateStr, period, color:{...colorToSave}, note:noteToSave});
   }
   setShiftRules(shift, rules);
   _dpSelectedColor=null;
