@@ -18,54 +18,103 @@ body{font-family:'Roboto',sans-serif;background:#fff;color:#202124;font-size:14p
   --shadow-sm:0 1px 2px rgba(60,64,67,.3),0 1px 3px rgba(60,64,67,.15);
 }
 
-/* ══ DARK MODE ══ */
+/* ══ DARK MODE — Google Takvim renk paleti ══ */
 body.dark-mode{
-  --blue:#8ab4f8;--blue-lt:#1a3a5c;--blue-dk:#aecbfa;
+  --blue:#8ab4f8;--blue-lt:rgba(138,180,248,.15);--blue-dk:#aecbfa;
   --border:#3c4043;--text:#e8eaed;--text2:#9aa0a6;--text3:#5f6368;
-  --bg:#1f1f1f;--bg2:#2d2d2d;--hover:rgba(232,234,237,.08);
+  --bg:#202124;--bg2:#2d2e30;--hover:rgba(232,234,237,.08);
   --shadow:0 1px 3px rgba(0,0,0,.6),0 4px 8px rgba(0,0,0,.4);
   --shadow-sm:0 1px 2px rgba(0,0,0,.5),0 1px 3px rgba(0,0,0,.3);
-  background:#1f1f1f;color:#e8eaed;
+  background:#202124;color:#e8eaed;
 }
-body.dark-mode #topbar,
-body.dark-mode .sidebar,
-body.dark-mode .modal,
-body.dark-mode .popover,
-body.dark-mode .day-popup,
-body.dark-mode #mob-nav,
-body.dark-mode .g-card,
-body.dark-mode .auth-box,
-body.dark-mode #profile-menu,
-body.dark-mode #member-detail-popup,
-body.dark-mode .log-undo-btn{background:var(--bg);border-color:var(--border)}
-body.dark-mode .cal-cell{background:var(--bg)}
-body.dark-mode .cal-cell.weekend{background:#282828}
-body.dark-mode .cal-cell:hover{background:#2d2d2d}
-body.dark-mode .cal-cell.today{background:#1a3a5c}
-body.dark-mode th{background:#2d2d2d;color:var(--text2)}
-body.dark-mode td{color:var(--text)}
-body.dark-mode tr:hover td{background:#2d2d2d}
-body.dark-mode .gi,.dark-mode .gs{background:var(--bg2);border-color:var(--border);color:var(--text)}
-body.dark-mode input,body.dark-mode select,body.dark-mode textarea{background:#2d2d2d!important;color:var(--text)!important;border-color:var(--border)!important}
-body.dark-mode .chip{background:var(--bg2);border-color:var(--border);color:var(--text2)}
-body.dark-mode .chip.active{background:var(--blue-lt);color:var(--blue)}
-body.dark-mode .auth-tab{color:var(--text2)}
-body.dark-mode .auth-tab.active{color:var(--blue)}
-body.dark-mode .sb-item{color:var(--text)}
-body.dark-mode .sb-item.active{background:var(--blue-lt);color:var(--blue)}
-body.dark-mode .btn-flat{color:var(--blue)}
-body.dark-mode .btn-flat:hover{background:var(--blue-lt)}
-body.dark-mode .btn-out2{background:var(--bg2);border-color:var(--border);color:var(--text)}
-body.dark-mode .btn-out{background:var(--bg2);border-color:var(--border);color:var(--text2)}
-body.dark-mode .sa-tab{color:var(--text2)}
-body.dark-mode .sa-tab.active{color:var(--blue)}
-body.dark-mode #members-table th{background:#2d2d2d}
-body.dark-mode .day-popup-holiday{background:#3c1515}
-body.dark-mode .cal-note-chip{background:#3d3200;border-color:#ca8a04;color:#fde68a}
-body.dark-mode .log-entry:hover{background:#2d2d2d}
-body.dark-mode .overlay{background:rgba(0,0,0,.65)}
-body.dark-mode .pop-hdr{background:var(--bg)}
-body.dark-mode .dc-color-row{border-color:var(--border)}
+/* Tüm beyaz arka planlar */
+body.dark-mode #topbar{background:#202124;border-color:#3c4043}
+body.dark-mode .sidebar{background:#202124;border-color:#3c4043}
+body.dark-mode .modal{background:#292a2d}
+body.dark-mode .popover{background:#292a2d}
+body.dark-mode .day-popup{background:#292a2d}
+body.dark-mode #mob-nav{background:#202124;border-color:#3c4043}
+body.dark-mode .g-card{background:#292a2d;border-color:#3c4043}
+body.dark-mode .auth-box{background:#292a2d}
+body.dark-mode #auth-screen{background:#202124}
+body.dark-mode #profile-menu{background:#292a2d;border-color:#3c4043}
+body.dark-mode #member-detail-popup{background:#292a2d}
+/* Takvim hücreleri */
+body.dark-mode .cal-cell{background:#202124}
+body.dark-mode .cal-cell.weekend{background:#1a1a1a}
+body.dark-mode .cal-cell:hover{background:#2d2e30}
+body.dark-mode .cal-cell.today{background:rgba(138,180,248,.12)}
+body.dark-mode .cal-cell.today .cal-dn{background:#8ab4f8;color:#202124}
+body.dark-mode .cal-hdr-row{background:#202124;border-color:#3c4043}
+body.dark-mode .cal-dowh{color:#9aa0a6}
+body.dark-mode .cal-wkn{border-color:#3c4043;color:#5f6368}
+body.dark-mode .cal-cell{border-color:#3c4043}
+/* Vardiya bar */
+body.dark-mode #sa-shift-bar{background:#202124;border-color:#3c4043}
+body.dark-mode .shift-sel-btn{background:#2d2e30;border-color:#3c4043;color:#e8eaed}
+body.dark-mode .shift-sel-btn:hover{background:#3c4043}
+body.dark-mode .shift-sel-btn.active{background:var(--sb,rgba(138,180,248,.15));color:var(--sc,#8ab4f8);border-color:var(--sc,#8ab4f8)}
+/* Tablo */
+body.dark-mode th{background:#2d2e30;color:#9aa0a6;border-color:#3c4043}
+body.dark-mode td{color:#e8eaed;border-color:#3c4043}
+body.dark-mode tr:hover td{background:#2d2e30}
+body.dark-mode #members-table th{background:#2d2e30}
+/* Input/select */
+body.dark-mode input:not([type=color]):not([type=checkbox]),
+body.dark-mode select,
+body.dark-mode textarea{background:#2d2e30!important;color:#e8eaed!important;border-color:#3c4043!important}
+/* Chip/badge */
+body.dark-mode .chip{background:#2d2e30;border-color:#3c4043;color:#9aa0a6}
+body.dark-mode .chip.active{background:rgba(138,180,248,.15);color:#8ab4f8;border-color:transparent}
+body.dark-mode .badge{filter:brightness(.85)}
+/* Tabs */
+body.dark-mode .auth-tab,.dark-mode .sa-tab{color:#9aa0a6}
+body.dark-mode .auth-tab.active,.dark-mode .sa-tab.active{color:#8ab4f8}
+body.dark-mode .sa-tab-bar{border-color:#3c4043}
+body.dark-mode .auth-tabs{border-color:#3c4043}
+body.dark-mode .sa-tab{color:#9aa0a6}
+body.dark-mode .sa-tab.active{color:#8ab4f8}
+/* Sidebar nav */
+body.dark-mode .sb-item{color:#e8eaed}
+body.dark-mode .sb-item:hover{background:rgba(232,234,237,.08)}
+body.dark-mode .sb-item.active{background:rgba(138,180,248,.15);color:#8ab4f8}
+body.dark-mode .leg-lbl{color:#e8eaed}
+body.dark-mode .mini-day{color:#e8eaed}
+body.dark-mode .mini-day.other{color:#5f6368}
+body.dark-mode .mini-day.today{background:#8ab4f8;color:#202124}
+/* Butonlar */
+body.dark-mode .btn-flat{color:#8ab4f8}
+body.dark-mode .btn-flat:hover{background:rgba(138,180,248,.15)}
+body.dark-mode .btn-out2{background:#2d2e30;border-color:#3c4043;color:#e8eaed}
+body.dark-mode .btn-out{background:#2d2e30;border-color:#3c4043;color:#9aa0a6}
+body.dark-mode .btn-g{background:#8ab4f8;color:#202124}
+body.dark-mode .tb-today{background:#2d2e30;border-color:#3c4043;color:#e8eaed}
+body.dark-mode .btn-create{background:#2d2e30;border-color:#3c4043;color:#e8eaed}
+body.dark-mode .log-undo-btn{background:#2d2e30;border-color:#3c4043;color:#9aa0a6}
+/* Diğer */
+body.dark-mode .day-popup-holiday{background:rgba(217,48,37,.15);color:#f28b82}
+body.dark-mode .cal-note-chip{background:rgba(202,138,4,.12);border-color:#ca8a04;color:#fde68a}
+body.dark-mode .log-entry:hover{background:#2d2e30}
+body.dark-mode .overlay{background:rgba(0,0,0,.7)}
+body.dark-mode .pop-hdr,.dark-mode .pop-actions{background:#292a2d}
+body.dark-mode .pop-body{background:#292a2d}
+body.dark-mode .toast{background:#e8eaed;color:#202124}
+body.dark-mode .g-card-hdr{border-color:#3c4043}
+body.dark-mode .modal-hdr{color:#e8eaed}
+body.dark-mode .modal-foot{border-color:#3c4043}
+body.dark-mode .mdp-row{border-color:#3c4043}
+body.dark-mode .mdp-handle{background:#5f6368}
+body.dark-mode .dp-note-item{border-color:#3c4043}
+body.dark-mode .day-popup-body{background:#292a2d}
+body.dark-mode .day-popup-footer{background:#292a2d;border-color:#3c4043}
+body.dark-mode .day-popup-hdr{background:#292a2d;border-color:#3c4043}
+body.dark-mode #dp-notes-section{background:#292a2d}
+body.dark-mode #dp-extra-sections{background:#292a2d}
+body.dark-mode #dp-collapse-bar{background:#2d2e30;border-color:#3c4043}
+body.dark-mode .dc-color-row{border-color:#3c4043}
+body.dark-mode ::-webkit-scrollbar-thumb{background:#3c4043}
+/* Google Takvim dark: ev-pill hafif saydam */
+body.dark-mode .ev-pill{filter:brightness(.85) saturate(1.1)}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-thumb{background:#dadce0;border-radius:3px}
 
@@ -372,10 +421,10 @@ tr:hover td{background:#f8f9fa}
 
 /* ══ SA SHIFT SELECTOR BAR ══ */
 .shift-sel-btn{
-  padding:5px 14px;border-radius:16px;font-size:12px;font-weight:600;
-  border:1.5px solid var(--border);background:#fff;cursor:pointer;
+  padding:4px 10px;border-radius:16px;font-size:11px;font-weight:600;
+  border:1.5px solid var(--border);background:var(--bg);cursor:pointer;
   font-family:'Google Sans',sans-serif;color:var(--text2);
-  transition:all .15s;white-space:nowrap;
+  transition:all .15s;white-space:nowrap;flex-shrink:0;
 }
 .shift-sel-btn:hover{background:var(--bg2)}
 .shift-sel-btn.active{
@@ -715,12 +764,12 @@ tr:hover td{background:#f8f9fa}
     <!-- CALENDAR -->
     <div class="cal-page" id="page-calendar">
       <!-- SA Vardiya Seçici -->
-      <div id="sa-shift-bar" style="display:none;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid var(--border);background:#fff;flex-shrink:0;flex-wrap:wrap">
-        <span style="font-size:12px;font-weight:500;color:var(--text2);margin-right:4px">Vardiya:</span>
-        <button class="shift-sel-btn active" id="ssb-A" onclick="setSaShiftFilter('A')" style="--sc:#0d47a1;--sb:#e3f2fd">A Vardiyası</button>
-        <button class="shift-sel-btn" id="ssb-B" onclick="setSaShiftFilter('B')" style="--sc:#1b5e20;--sb:#e8f5e9">B Vardiyası</button>
-        <button class="shift-sel-btn" id="ssb-C" onclick="setSaShiftFilter('C')" style="--sc:#e65100;--sb:#fff3e0">C Vardiyası</button>
-        <button class="shift-sel-btn" id="ssb-D" onclick="setSaShiftFilter('D')" style="--sc:#4a148c;--sb:#f3e5f5">D Vardiyası</button>
+      <div id="sa-shift-bar" style="display:none;align-items:center;gap:6px;padding:6px 12px;border-bottom:1px solid var(--border);background:var(--bg);flex-shrink:0;overflow-x:auto;white-space:nowrap;flex-wrap:nowrap">
+        <span style="font-size:12px;font-weight:500;color:var(--text2);flex-shrink:0">Vardiya:</span>
+        <button class="shift-sel-btn active" id="ssb-A" onclick="setSaShiftFilter('A')" style="--sc:#0d47a1;--sb:#e3f2fd;flex-shrink:0">A Vardiyası</button>
+        <button class="shift-sel-btn" id="ssb-B" onclick="setSaShiftFilter('B')" style="--sc:#1b5e20;--sb:#e8f5e9;flex-shrink:0">B Vardiyası</button>
+        <button class="shift-sel-btn" id="ssb-C" onclick="setSaShiftFilter('C')" style="--sc:#e65100;--sb:#fff3e0;flex-shrink:0">C Vardiyası</button>
+        <button class="shift-sel-btn" id="ssb-D" onclick="setSaShiftFilter('D')" style="--sc:#4a148c;--sb:#f3e5f5;flex-shrink:0">D Vardiyası</button>
       </div>
       <div class="cal-hdr-row" id="cal-hdr-row"></div>
       <div class="cal-scroll"><div class="cal-grid" id="cal-grid"></div></div>
