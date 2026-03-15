@@ -861,6 +861,8 @@ tr:hover td{background:#f8f9fa}
           <div id="dc-preview" style="padding:14px 18px;display:flex;flex-wrap:wrap;gap:6px"></div>
         </div>
       </div>
+      <!-- Shifts pane -->
+      <div id="sa-pane-shifts" style="display:none">
         <div class="g-card">
           <div class="g-card-hdr">Bekleyen Vardiya Değişim Talepleri</div>
           <div class="tbl-wrap"><table>
@@ -874,10 +876,6 @@ tr:hover td{background:#f8f9fa}
       <div id="sa-pane-types" style="display:none">
         <div class="g2">
           <div class="g-card">
-            <div class="g-card-hdr">Mevcut İzin Türleri</div>
-            <div id="sa-types-list"></div>
-          </div>
-          <div class="g-card">
             <div class="g-card-hdr">Yeni Tür Ekle</div>
             <div style="padding:14px 18px">
               <div class="fr"><label>Tür Adı</label><input class="gi" id="new-type-name" placeholder="Doğum İzni"></div>
@@ -889,6 +887,10 @@ tr:hover td{background:#f8f9fa}
               </div>
               <button class="btn btn-pri btn-sm" onclick="addCustomType()">Ekle</button>
             </div>
+          </div>
+          <div class="g-card">
+            <div class="g-card-hdr">Mevcut İzin Türleri</div>
+            <div id="sa-types-list"></div>
           </div>
         </div>
       </div>
